@@ -1,6 +1,7 @@
 # Copyright (c) 2011 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+import gocept.amqparchive
 import gocept.amqparchive.connection
 import gocept.amqparchive.interfaces
 import gocept.amqprun
@@ -16,6 +17,7 @@ import time
 import unittest
 import zope.component
 import zope.component.testing
+import zope.configuration.xmlconfig
 
 
 class ZCALayer(object):
@@ -87,9 +89,6 @@ class ElasticLayer(SettingsLayer):
 
         SettingsLayer.settings[
             'gocept.amqparchive.elastic_hostname'] = cls.hostname
-        cls.elastic = gocept.amqparchive.connection.ElasticSearch()
-        zope.component.provideUtility(
-            cls.elastic, provides=gocept.amqparchive.interfaces.IElasticSearch)
 
     @classmethod
     def start_elastic(cls):
@@ -139,8 +138,9 @@ class ElasticLayer(SettingsLayer):
 
     @classmethod
     def testSetUp(cls):
+        elastic = gocept.amqparchive.connection.ElasticSearch()
         try:
-            cls.elastic.delete_index('_all')
+            elastic.delete_index('_all')
         except pyes.exceptions.ElasticSearchException:
             pass
 
@@ -149,7 +149,27 @@ class ElasticLayer(SettingsLayer):
         pass
 
 
-class NginxLayer(ElasticLayer):
+class ConfigureLayer(ElasticLayer):
+
+    @classmethod
+    def setUp(cls):
+        zope.configuration.xmlconfig.file(
+            'configure.zcml', gocept.amqparchive)
+
+    @classmethod
+    def tearDown(cls):
+        pass
+
+    @classmethod
+    def testSetUp(cls):
+        pass
+
+    @classmethod
+    def testTearDown(cls):
+        pass
+
+
+class NginxLayer(ConfigureLayer):
     """Starts and stops the nginx webserver.
 
     NOTE the following assumptions on the enclosing buildout:
@@ -187,6 +207,16 @@ class NginxLayer(ElasticLayer):
 
 
 selenium_layer = gocept.selenium.base.Layer(NginxLayer)
+
+
+class TestCase(unittest.TestCase):
+
+    layer = ConfigureLayer
+
+    @property
+    def elastic(self):
+        return zope.component.getUtility(
+            gocept.amqparchive.interfaces.IElasticSearch)
 
 
 class SeleniumTestCase(unittest.TestCase, gocept.selenium.base.TestCase):

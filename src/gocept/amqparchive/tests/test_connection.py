@@ -2,21 +2,10 @@
 # See also LICENSE.txt
 
 from pyes.exceptions import ElasticSearchException
-import gocept.amqparchive.interfaces
 import gocept.amqparchive.testing
-import unittest
-import zope.component
 
 
-class ConnectionIntegrationTest(unittest.TestCase):
-
-    level = 2
-    layer = gocept.amqparchive.testing.ElasticLayer
-
-    @property
-    def elastic(self):
-        return zope.component.getUtility(
-            gocept.amqparchive.interfaces.IElasticSearch)
+class ConnectionIntegrationTest(gocept.amqparchive.testing.TestCase):
 
     def test_aaa_index_and_retrieve_something(self):
         self.elastic.index_immediately(
