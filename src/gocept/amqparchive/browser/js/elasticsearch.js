@@ -21,8 +21,7 @@ ElasticSearch.prototype.defaults = {
     number_of_shards   : 5,
     number_of_replicas : 1,
     debug    : false,
-    host     : "localhost",
-    port     : 9200,
+    url     : "http://localhost:9200",
     callback : function(response, meta) {
         // TODO By default the "debug" is set to false.
         if (response) ElasticSearch.prototype.log(response)
@@ -669,7 +668,7 @@ ElasticSearch.prototype.ensure = function(obj) {
 
 ElasticSearch.prototype.execute = function (method, path, settings) {
     var settings = this.ensure(settings);
-    var url = "http://" + this.defaults.host + ":" + this.defaults.port + "/" + path;
+    var url = this.defaults.url + "/" + path;
     var callback = settings.callback || this.defaults.callback;
     settings.method = method;
 //    this.log(options.method + ": " + url);

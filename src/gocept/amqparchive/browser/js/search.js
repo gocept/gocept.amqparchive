@@ -1,6 +1,6 @@
 (function($) {
 
-var elasticsearch = new ElasticSearch({port: 9212});
+var elasticsearch = new ElasticSearch({url: '/elasticsearch'});
 
 $(window).bind('load', function() {
     elasticsearch.search({
