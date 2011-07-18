@@ -40,28 +40,7 @@ class ZCALayer(object):
         pass
 
 
-class SettingsLayer(ZCALayer):
-
-    @classmethod
-    def setUp(cls):
-        cls.settings = {}
-        zope.component.provideUtility(
-            cls.settings, provides=gocept.amqprun.interfaces.ISettings)
-
-    @classmethod
-    def tearDown(cls):
-        pass
-
-    @classmethod
-    def testSetUp(cls):
-        pass
-
-    @classmethod
-    def testTearDown(cls):
-        pass
-
-
-class ElasticLayer(SettingsLayer):
+class ElasticLayer(object):
     """Starts and stops an elasticsearch server and deletes all its indexes
     before each test is run.
 
@@ -77,32 +56,26 @@ class ElasticLayer(SettingsLayer):
     already running there.
     """
 
-    hostname = os.environ['ELASTIC_HOSTNAME']
     START_TIMEOUT = 15
 
     @classmethod
     def setUp(cls):
         cls.tmpdir = tempfile.mkdtemp()
-
         cls.process = cls.start_elastic()
         cls.wait_for_elastic_to_start()
-
-        SettingsLayer.settings[
-            'gocept.amqparchive.elastic_hostname'] = cls.hostname
-        SettingsLayer.settings[
-            'gocept.amqparchive.elastic_autorefresh'] = True
 
     @classmethod
     def start_elastic(cls):
         elastic_home = os.path.join(
             os.environ['BUILDOUT_DIR'], 'parts', 'elasticsearch')
         cls.logfile = os.path.join(elastic_home, 'test.log')
+        hostname = os.environ['ELASTIC_HOSTNAME']
         return subprocess.Popen([
                 os.path.join(elastic_home, 'bin', 'elasticsearch'),
                 '-f',
                 '-D', 'es.path.data=' + os.path.join(cls.tmpdir, 'data'),
                 '-D', 'es.path.work=' + os.path.join(cls.tmpdir, 'work'),
-                '-D', 'es.http.port=' + cls.hostname.split(':', 1)[-1],
+                '-D', 'es.http.port=' + hostname.split(':', 1)[-1],
                 ], stdout=open(cls.logfile, 'w'), stderr=subprocess.STDOUT)
 
     @classmethod
@@ -140,7 +113,9 @@ class ElasticLayer(SettingsLayer):
 
     @classmethod
     def testSetUp(cls):
-        elastic = gocept.amqparchive.connection.ElasticSearch()
+        # XXX using the IElasticSearch utility would be nicer,
+        # but the layer structure wreaks havoc on that plan at the moment
+        elastic = pyes.ES(os.environ['ELASTIC_HOSTNAME'])
         try:
             elastic.delete_index('_all')
         except pyes.exceptions.ElasticSearchException:
@@ -151,10 +126,21 @@ class ElasticLayer(SettingsLayer):
         pass
 
 
-class ConfigureLayer(ElasticLayer):
+class ZCMLLayer(ZCALayer, ElasticLayer):
+    """Loads our configure.zcml and provides ISettings useful for testing.
+    """
 
     @classmethod
     def setUp(cls):
+        cls.settings = {}
+        cls.settings[
+            'gocept.amqparchive.elastic_hostname'] = os.environ[
+            'ELASTIC_HOSTNAME']
+        cls.settings[
+            'gocept.amqparchive.elastic_autorefresh'] = True
+        zope.component.provideUtility(
+            cls.settings, provides=gocept.amqprun.interfaces.ISettings)
+
         zope.configuration.xmlconfig.file(
             'configure.zcml', gocept.amqparchive)
 
@@ -171,7 +157,12 @@ class ConfigureLayer(ElasticLayer):
         pass
 
 
-class QueueLayer(ElasticLayer, gocept.amqprun.testing.QueueLayer):
+class QueueLayer(gocept.amqprun.testing.QueueLayer, ElasticLayer):
+    """Combines QueueLayer and ElasticLayer.
+
+    Note that we don't load configure here, this is provided by
+    gocept.amqprun.testing.MainTestCase.make_config()
+    """
 
     @classmethod
     def setUp(cls):
@@ -190,7 +181,7 @@ class QueueLayer(ElasticLayer, gocept.amqprun.testing.QueueLayer):
         pass
 
 
-class NginxLayer(ConfigureLayer):
+class NginxLayer(ZCMLLayer):
     """Starts and stops the nginx webserver.
 
     NOTE the following assumptions on the enclosing buildout:
@@ -240,7 +231,7 @@ class ElasticHelper(object):
 
 class TestCase(unittest.TestCase, ElasticHelper):
 
-    layer = ConfigureLayer
+    layer = ZCMLLayer
 
 
 class SeleniumTestCase(unittest.TestCase,
