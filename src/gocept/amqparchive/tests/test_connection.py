@@ -4,7 +4,6 @@
 from pyes.exceptions import ElasticSearchException
 import gocept.amqparchive.interfaces
 import gocept.amqparchive.testing
-import time
 import unittest
 import zope.component
 
@@ -20,9 +19,8 @@ class ConnectionIntegrationTest(unittest.TestCase):
             gocept.amqparchive.interfaces.IElasticSearch)
 
     def test_aaa_index_and_retrieve_something(self):
-        self.elastic.index(
+        self.elastic.index_immediately(
             dict(foo='bar', qux='baz'), 'test-index', 'test-type', id=1)
-        time.sleep(1) # XXX why?
         doc = self.elastic.get('test-index', 'test-type', 1)
         self.assertEqual('bar', doc['_source']['foo'])
 
