@@ -15,8 +15,9 @@ class ElasticSearch(pyes.ES):
     def __init__(self):
         settings = zope.component.getUtility(
             gocept.amqprun.interfaces.ISettings)
+        # socket doesn't accept unicode hostname/port
         return super(ElasticSearch, self).__init__(
-            settings['gocept.amqparchive.elastic_hostname'])
+            settings['gocept.amqparchive.elastic_hostname'].encode('utf8'))
 
     def index_immediately(self, *args, **kw):
         """ElasticSearch by default doesn't update itself immediately,

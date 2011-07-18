@@ -4,7 +4,7 @@
 import gocept.amqparchive
 import gocept.amqparchive.connection
 import gocept.amqparchive.interfaces
-import gocept.amqprun
+import gocept.amqprun.testing
 import gocept.selenium.base
 import os
 import pyes.exceptions
@@ -169,6 +169,25 @@ class ConfigureLayer(ElasticLayer):
         pass
 
 
+class QueueLayer(ElasticLayer, gocept.amqprun.testing.QueueLayer):
+
+    @classmethod
+    def setUp(cls):
+        pass
+
+    @classmethod
+    def tearDown(cls):
+        pass
+
+    @classmethod
+    def testSetUp(cls):
+        pass
+
+    @classmethod
+    def testTearDown(cls):
+        pass
+
+
 class NginxLayer(ConfigureLayer):
     """Starts and stops the nginx webserver.
 
@@ -209,9 +228,7 @@ class NginxLayer(ConfigureLayer):
 selenium_layer = gocept.selenium.base.Layer(NginxLayer)
 
 
-class TestCase(unittest.TestCase):
-
-    layer = ConfigureLayer
+class ElasticHelper(object):
 
     @property
     def elastic(self):
@@ -219,7 +236,14 @@ class TestCase(unittest.TestCase):
             gocept.amqparchive.interfaces.IElasticSearch)
 
 
-class SeleniumTestCase(unittest.TestCase, gocept.selenium.base.TestCase):
+class TestCase(unittest.TestCase, ElasticHelper):
+
+    layer = ConfigureLayer
+
+
+class SeleniumTestCase(unittest.TestCase,
+                       gocept.selenium.base.TestCase,
+                       ElasticHelper):
 
     layer = selenium_layer
     level = 3

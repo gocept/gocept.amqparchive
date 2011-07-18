@@ -5,4 +5,6 @@
   <include package="zope.component" file="meta.zcml" />
 
   <utility factory=".connection.ElasticSearch" />
+
+  <subscriber handler=".archive.index_message" />
 </configure>

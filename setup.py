@@ -34,5 +34,6 @@ Archiving, indexing and search for AMQP messages.
         'gocept.selenium',
         'mock',
         'zope.configuration',
+        'zope.event',
     ]),
 )
