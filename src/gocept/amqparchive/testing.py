@@ -89,6 +89,8 @@ class ElasticLayer(SettingsLayer):
 
         SettingsLayer.settings[
             'gocept.amqparchive.elastic_hostname'] = cls.hostname
+        SettingsLayer.settings[
+            'gocept.amqparchive.elastic_autorefresh'] = True
 
     @classmethod
     def start_elastic(cls):

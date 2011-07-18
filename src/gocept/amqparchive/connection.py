@@ -12,17 +12,24 @@ class ElasticSearch(pyes.ES):
 
     zope.interface.implements(gocept.amqparchive.interfaces.IElasticSearch)
 
-    def __init__(self):
-        settings = zope.component.getUtility(
-            gocept.amqprun.interfaces.ISettings)
-        # socket doesn't accept unicode hostname/port
-        return super(ElasticSearch, self).__init__(
-            settings['gocept.amqparchive.elastic_hostname'].encode('utf8'))
+    @property
+    def settings(self):
+        return zope.component.getUtility(gocept.amqprun.interfaces.ISettings)
 
-    def index_immediately(self, *args, **kw):
+    def __init__(self):
+        # socket doesn't accept unicode for hostname/port
+        return super(ElasticSearch, self).__init__(
+            self.settings['gocept.amqparchive.elastic_hostname'].encode(
+                'utf8'))
+
+    def index(self, *args, **kw):
         """ElasticSearch by default doesn't update itself immediately,
         so a newly indexed document is searchable only after a short delay.
-        This method helps avoiding littering the tests with time.sleep(1)
+        For tests we want to force an immediate refresh.
+
+        Note: the autorefresh-parameter in pyes is not sufficient for this
+        purpose, as it only applies to search(), but not to get(), for example.
         """
-        kw.setdefault('querystring_args', {})['refresh'] = True
+        if self.settings.get('gocept.amqparchive.elastic_autorefresh', False):
+            kw.setdefault('querystring_args', {})['refresh'] = True
         return super(ElasticSearch, self).index(*args, **kw)
