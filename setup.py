@@ -31,6 +31,7 @@ Archiving, indexing and search for AMQP messages.
         'zope.component[zcml]',
     ],
     extras_require=dict(test=[
+        'gocept.selenium',
         'mock',
     ]),
 )
