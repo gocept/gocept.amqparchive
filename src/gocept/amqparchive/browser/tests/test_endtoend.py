@@ -3,6 +3,7 @@
 
 import gocept.amqparchive.interfaces
 import gocept.amqparchive.testing
+import time
 import zope.component
 
 
@@ -12,6 +13,8 @@ class EndtoendTest(gocept.amqparchive.testing.SeleniumTestCase):
         elasticsearch = zope.component.getUtility(
             gocept.amqparchive.interfaces.IElasticSearch)
         elasticsearch.index(dict(url='/foo', body='foo'), 'queue', 'message')
+        time.sleep(1) # XXX why?
         s = self.selenium
         self.open('/')
-        s.assertTextPresent('Hello')
+        s.waitForElementPresent('css=li')
+        s.assertText('css=li', '/foo')
