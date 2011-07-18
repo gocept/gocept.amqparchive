@@ -8,7 +8,7 @@ import gocept.amqparchive.testing
 class ConnectionIntegrationTest(gocept.amqparchive.testing.TestCase):
 
     def test_aaa_index_and_retrieve_something(self):
-        self.elastic.index_immediately(
+        self.elastic.index(
             dict(foo='bar', qux='baz'), 'test-index', 'test-type', id=1)
         doc = self.elastic.get('test-index', 'test-type', 1)
         self.assertEqual('bar', doc['_source']['foo'])
