@@ -4,6 +4,7 @@
 import gocept.amqparchive.connection
 import gocept.amqparchive.interfaces
 import gocept.amqprun
+import gocept.selenium.base
 import os
 import pyes.exceptions
 import shutil
@@ -66,7 +67,7 @@ class ElasticLayer(SettingsLayer):
     - the ${buildout:directory} is made available as os.environ['BUILDOUT_DIR']
     - the elasticsearch binary is available at
       ${buildout:directory}/elasticsearch/bin/elasticsearch
-
+    - the hostname:port we should bind to is in os.environ['ELASTIC_HOSTNAME']
 
     The risk of targetting a production server with our "delete all indexes"
     operation is small: We terminate the test run when we can't start our own
@@ -74,8 +75,7 @@ class ElasticLayer(SettingsLayer):
     already running there.
     """
 
-    hostname = 'localhost'
-    port = '9212'
+    hostname = os.environ['ELASTIC_HOSTNAME']
     START_TIMEOUT = 15
 
     @classmethod
@@ -86,8 +86,7 @@ class ElasticLayer(SettingsLayer):
         cls.wait_for_elastic_to_start()
 
         SettingsLayer.settings[
-            'gocept.amqparchive.elastic_hostname'] = '%s:%s' % (
-            cls.hostname, cls.port)
+            'gocept.amqparchive.elastic_hostname'] = cls.hostname
         cls.elastic = gocept.amqparchive.connection.ElasticSearch()
         zope.component.provideUtility(
             cls.elastic, provides=gocept.amqparchive.interfaces.IElasticSearch)
@@ -102,7 +101,7 @@ class ElasticLayer(SettingsLayer):
                 '-f',
                 '-D', 'es.path.data=' + os.path.join(cls.tmpdir, 'data'),
                 '-D', 'es.path.work=' + os.path.join(cls.tmpdir, 'work'),
-                '-D', 'es.http.port=' + cls.port,
+                '-D', 'es.http.port=' + cls.hostname.split(':', 1)[-1],
                 ], stdout=open(cls.logfile, 'w'), stderr=subprocess.STDOUT)
 
     @classmethod
@@ -148,3 +147,52 @@ class ElasticLayer(SettingsLayer):
     @classmethod
     def testTearDown(cls):
         pass
+
+
+class NginxLayer(ElasticLayer):
+    """Starts and stops the nginx webserver.
+
+    NOTE the following assumptions on the enclosing buildout:
+    - nginx binary must be on the $PATH
+    - a configuration file for nginx must be provided in the location given by
+      os.envrion['NGINX_CONFIG']
+    - the listening hostname:port in that configuration must be available in
+      os.environ['NGINX_HOSTNAME'], so the tests know which server to target
+    """
+
+    nginx_conf = os.environ['NGINX_CONFIG']
+    hostname = os.environ['NGINX_HOSTNAME']
+
+    @classmethod
+    def setUp(cls):
+        cls.nginx()
+
+    @classmethod
+    def tearDown(cls):
+        cls.nginx('-s', 'quit')
+
+    @classmethod
+    def nginx(cls, *args):
+        subprocess.call(
+            ['nginx', '-c', cls.nginx_conf] + list(args),
+            stdout=open('/dev/null', 'w'), stderr=subprocess.STDOUT)
+
+    @classmethod
+    def testSetUp(cls):
+        pass
+
+    @classmethod
+    def testTearDown(cls):
+        pass
+
+
+selenium_layer = gocept.selenium.base.Layer(NginxLayer)
+
+
+class SeleniumTestCase(unittest.TestCase, gocept.selenium.base.TestCase):
+
+    layer = selenium_layer
+    level = 3
+
+    def open(self, path):
+        self.selenium.open('http://%s%s' % (NginxLayer.hostname, path))
