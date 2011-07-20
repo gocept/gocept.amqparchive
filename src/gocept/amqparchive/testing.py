@@ -75,6 +75,8 @@ class ElasticLayer(object):
                 '-f',
                 '-D', 'es.path.data=' + os.path.join(cls.tmpdir, 'data'),
                 '-D', 'es.path.work=' + os.path.join(cls.tmpdir, 'work'),
+                '-D', 'es.path.logs=' + os.path.join(cls.tmpdir, 'logs'),
+                '-D', 'es.cluster.name=gocept.amqparchive.testing',
                 '-D', 'es.http.port=' + hostname.split(':', 1)[-1],
                 ], stdout=open(cls.logfile, 'w'), stderr=subprocess.STDOUT)
 
