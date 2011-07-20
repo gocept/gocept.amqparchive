@@ -8,11 +8,14 @@ import zope.component
 
 class EndtoendTest(gocept.amqparchive.testing.SeleniumTestCase):
 
-    def test_walking_skeleton(self):
+    def test_enter_search_term_returns_urls_of_results(self):
         elasticsearch = zope.component.getUtility(
             gocept.amqparchive.interfaces.IElasticSearch)
-        elasticsearch.index(dict(url='/foo', body='foo'), 'queue', 'message')
+        elasticsearch.index(
+            dict(url='foo/bar/baz.xml', body='foo'), 'queue', 'message')
         s = self.selenium
         self.open('/')
+        s.type('id=query', 'foo')
+        s.click('id=search')
         s.waitForElementPresent('css=li')
-        s.assertText('css=li', '/foo')
+        s.assertText('css=li', '/messages/foo/bar/baz.xml')
