@@ -128,7 +128,7 @@ class ElasticLayer(object):
         pass
 
 
-class ZCMLLayer(ZCALayer, ElasticLayer):
+class ZCMLLayer(ZCALayer):
     """Loads our configure.zcml and provides ISettings useful for testing.
     """
 
@@ -145,6 +145,25 @@ class ZCMLLayer(ZCALayer, ElasticLayer):
 
         zope.configuration.xmlconfig.file(
             'configure.zcml', gocept.amqparchive)
+
+    @classmethod
+    def tearDown(cls):
+        pass
+
+    @classmethod
+    def testSetUp(cls):
+        pass
+
+    @classmethod
+    def testTearDown(cls):
+        pass
+
+
+class FunctionalLayer(ZCMLLayer, ElasticLayer):
+
+    @classmethod
+    def setUp(cls):
+        pass
 
     @classmethod
     def tearDown(cls):
@@ -183,7 +202,7 @@ class QueueLayer(gocept.amqprun.testing.QueueLayer, ElasticLayer):
         pass
 
 
-class NginxLayer(ZCMLLayer):
+class NginxLayer(object):
     """Starts and stops the nginx webserver.
 
     NOTE the following assumptions on the enclosing buildout:
@@ -220,7 +239,8 @@ class NginxLayer(ZCMLLayer):
         pass
 
 
-selenium_layer = gocept.selenium.base.Layer(NginxLayer)
+javascript_layer = gocept.selenium.base.Layer(NginxLayer)
+endtoend_layer = gocept.selenium.base.Layer(NginxLayer, ElasticLayer)
 
 
 class ElasticHelper(object):
@@ -233,15 +253,20 @@ class ElasticHelper(object):
 
 class TestCase(unittest.TestCase, ElasticHelper):
 
-    layer = ZCMLLayer
+    layer = FunctionalLayer
 
 
 class SeleniumTestCase(unittest.TestCase,
                        gocept.selenium.base.TestCase,
                        ElasticHelper):
 
-    layer = selenium_layer
+    layer = javascript_layer
     level = 3
 
     def open(self, path):
         self.selenium.open('http://%s%s' % (NginxLayer.hostname, path))
+
+    def eval(self, text):
+        return self.selenium.getEval(
+            "var window = selenium.browserbot.getCurrentWindow();\n"
+            + text)

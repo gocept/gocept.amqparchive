@@ -3,15 +3,14 @@
 
 import gocept.amqparchive.interfaces
 import gocept.amqparchive.testing
-import zope.component
 
 
 class EndtoendTest(gocept.amqparchive.testing.SeleniumTestCase):
 
+    layer = gocept.amqparchive.testing.endtoend_layer
+
     def test_enter_search_term_returns_urls_of_results(self):
-        elasticsearch = zope.component.getUtility(
-            gocept.amqparchive.interfaces.IElasticSearch)
-        elasticsearch.index(
+        self.elastic.index(
             dict(url='foo/bar/baz.xml', body='foo'), 'queue', 'message')
         s = self.selenium
         self.open('/')

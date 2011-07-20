@@ -58,9 +58,15 @@ gocept.amqparchive.run_search = function() {
 };
 
 
+var RETURN = 13;
+
 $(window).bind('load', function() {
     $('#search').bind('click', gocept.amqparchive.run_search);
-    // XXX also bind #query keydown "return"
+    $('#query').bind('keydown', function(event) {
+        if (event.keyCode == RETURN) {
+            gocept.amqparchive.run_search();
+        }
+    });
 });
 
 })(jQuery);
