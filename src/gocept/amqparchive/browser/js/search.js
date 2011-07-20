@@ -5,7 +5,7 @@
 // require('jsclass')
 // require('json-template')
 // require('elasticsearch')
-// require('util')
+// require('template')
 
 
 (function($) {
@@ -46,7 +46,7 @@ gocept.amqparchive.ES = new gocept.amqparchive.ElasticSearch(
     '/elasticsearch', 'queue', 'message');
 
 
-var RESULT_TEMPLATE = gocept.amqparchive.create_template(
+var RESULT_TEMPLATE = new gocept.amqparchive.Template(
     '{.repeated section @}<li><a href="/messages/{_source.url}">'
     + '/messages/{_source.url}</a></li>{.end}'
 );

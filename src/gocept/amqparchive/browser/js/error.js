@@ -3,7 +3,7 @@
 
 // require('jquery')
 // require('jquery-ui')
-// require('util')
+// require('template')
 
 
 (function($) {
@@ -11,7 +11,7 @@ gocept = window.gocept || {};
 gocept.amqparchive = gocept.amqparchive || {};
 
 
-var DIALOG_TEMPLATE = gocept.amqparchive.create_template(
+var DIALOG_TEMPLATE = new gocept.amqparchive.Template(
     '<div id="error-dialog">'
     + '<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>An error occured:</p>'
     + '<p>{message}</p>'

@@ -8,10 +8,12 @@
 gocept = window.gocept || {};
 gocept.amqparchive = gocept.amqparchive || {};
 
-gocept.amqparchive.create_template = function(contents) {
+
+gocept.amqparchive.Template = function(contents) {
     return jsontemplate.Template(contents, {
         default_formatter: 'html'
     });
 };
+
 
 })(jQuery);
