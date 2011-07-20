@@ -240,7 +240,8 @@ class NginxLayer(object):
 
 
 javascript_layer = gocept.selenium.base.Layer(NginxLayer)
-endtoend_layer = gocept.selenium.base.Layer(NginxLayer, ElasticLayer)
+endtoend_layer = gocept.selenium.base.Layer(
+    ElasticLayer, NginxLayer, ZCMLLayer)
 
 
 class ElasticHelper(object):
