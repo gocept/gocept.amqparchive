@@ -5,6 +5,7 @@
 // require('jsclass')
 // require('json-template')
 // require('elasticsearch')
+// require('util')
 
 
 (function($) {
@@ -14,20 +15,26 @@ gocept.amqparchive = gocept.amqparchive || {};
 
 gocept.amqparchive.ElasticSearch = Class.extend({
 
-    __init__: function(url) {
+    __init__: function(url, index, type) {
         var self = this;
         self.elasticsearch = new ElasticSearch({url: url});
+        self.index = index;
+        self.type = type;
     },
 
     search: function(query, callback) {
         var self = this;
         self.elasticsearch.search({
-            indices: 'queue',
-            types: 'message',
+            indices: self.index,
+            types: self.type,
             queryDSL: {query: {'text': {'_all': query}}},
             callback: function(json, xhr) {
-                // XXX error handling
-                callback(json);
+                if (xhr.status == 200) {
+                    callback(json);
+                } else {
+                    var response = $.parseJSON(xhr.responseText);
+                    gocept.amqparchive.display_error(response['error']);
+                }
             }
         });
     }
@@ -35,14 +42,8 @@ gocept.amqparchive.ElasticSearch = Class.extend({
 });
 
 
-gocept.amqparchive.ES = new gocept.amqparchive.ElasticSearch('/elasticsearch');
-
-
-gocept.amqparchive.create_template = function(contents) {
-    return jsontemplate.Template(contents, {
-        default_formatter: 'html'
-    });
-};
+gocept.amqparchive.ES = new gocept.amqparchive.ElasticSearch(
+    '/elasticsearch', 'queue', 'message');
 
 
 var RESULT_TEMPLATE = gocept.amqparchive.create_template(
