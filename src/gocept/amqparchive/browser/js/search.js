@@ -68,6 +68,8 @@ $(window).bind('load', function() {
             gocept.amqparchive.run_search();
         }
     });
+
+    $('#query').focus();
 });
 
 })(jQuery);
