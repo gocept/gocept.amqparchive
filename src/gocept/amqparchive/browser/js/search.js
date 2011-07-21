@@ -47,8 +47,8 @@ gocept.amqparchive.ES = new gocept.amqparchive.ElasticSearch(
 
 
 var RESULT_TEMPLATE = new gocept.amqparchive.Template(
-    '{.repeated section @}<li><a href="/messages/{_source.url}">'
-    + '/messages/{_source.url}</a></li>{.end}'
+    '{.repeated section @}<li><a href="/messages/{_source.path}">'
+    + '/messages/{_source.path}</a></li>{.end}'
 );
 
 

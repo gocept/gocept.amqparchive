@@ -11,7 +11,7 @@ class EndtoendTest(gocept.amqparchive.testing.SeleniumTestCase):
 
     def test_enter_search_term_returns_urls_of_results(self):
         self.elastic.index(
-            dict(url='foo/bar/baz.xml', body='foo'), 'queue', 'message')
+            dict(path='foo/bar/baz.xml', body='foo'), 'queue', 'message')
         s = self.selenium
         self.open('/')
         s.type('id=query', 'foo')
