@@ -14,7 +14,7 @@ class SearchTest(gocept.amqparchive.testing.SeleniumTestCase):
     def test_enter_key_starts_search(self):
         self.eval("""\
 window.gocept.amqparchive.ES.search = function(query, callback) {
-    callback({hits: {hits: [{_source: {url: 'foo/bar/baz.xml'}}]}});
+    callback({hits: {hits: [{_source: {path: 'foo/bar/baz.xml'}}]}});
 };
 """)
 

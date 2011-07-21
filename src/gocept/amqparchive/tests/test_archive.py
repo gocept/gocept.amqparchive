@@ -51,8 +51,9 @@ class IndexIntegrationTest(gocept.amqprun.testing.MainTestCase,
     def test_message_should_be_indexed(self):
         self.make_config(__name__, 'index', mapping=dict(
                 routing_key='test.data',
-                tmpdir=self.tmpdir,
+                directory=self.tmpdir,
                 queue_name=self.get_queue_name('test'),
+                pattern='foo/bar/baz.xml',
                 elastic_hostname=os.environ['ELASTIC_HOSTNAME']))
         self.create_reader()
 
@@ -70,3 +71,5 @@ class IndexIntegrationTest(gocept.amqprun.testing.MainTestCase,
         time.sleep(2)
         result = self.elastic.search({'query': {'text': {'_all': 'only'}}})
         self.assertEqual(1, result['hits']['total'])
+        hit = result['hits']['hits'][0]
+        self.assertEqual('foo/bar/baz.xml', hit['_source']['path'])
