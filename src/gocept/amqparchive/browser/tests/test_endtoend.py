@@ -13,7 +13,7 @@ class EndtoendTest(gocept.amqparchive.testing.SeleniumTestCase):
         self.elastic.index(
             dict(path='foo/bar/baz.xml', body='foo'), 'queue', 'message')
         s = self.selenium
-        self.open('/')
+        self.open('/search/')
         s.type('id=query', 'foo')
         s.click('id=search')
         s.waitForElementPresent('css=li')
