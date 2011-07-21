@@ -9,7 +9,7 @@ class SearchTest(gocept.amqparchive.testing.SeleniumTestCase):
 
     def setUp(self):
         super(SearchTest, self).setUp()
-        self.open('/')
+        self.open('/search/')
 
     def test_enter_key_starts_search(self):
         self.eval("""\
