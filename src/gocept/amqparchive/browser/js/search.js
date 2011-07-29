@@ -54,6 +54,7 @@ var RESULT_TEMPLATE = new gocept.amqparchive.Template(
 
 gocept.amqparchive.run_search = function() {
     gocept.amqparchive.ES.search($('#query').val(), function(data) {
+        $('#count').html('total hits: ' + data.hits.total);
         $('#results').html(RESULT_TEMPLATE.expand(data.hits.hits));
     });
 };
