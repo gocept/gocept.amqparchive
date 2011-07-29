@@ -14,7 +14,9 @@ class SearchTest(gocept.amqparchive.testing.SeleniumTestCase):
     def test_enter_key_starts_search(self):
         self.eval("""\
 window.gocept.amqparchive.ES.search = function(query, callback) {
-    callback({hits: {hits: [{_source: {path: 'foo/bar/baz.xml'}}]}});
+    callback({hits: {
+        total: 7,
+        hits: [{_source: {path: 'foo/bar/baz.xml'}}]}});
 };
 """)
 
@@ -23,6 +25,22 @@ window.gocept.amqparchive.ES.search = function(query, callback) {
         s.keyDown('id=query', r'\13')
         s.waitForElementPresent('css=li')
         s.assertText('css=li', '/messages/foo/bar/baz.xml')
+
+    def test_shows_total_hit_count(self):
+        self.eval("""\
+window.gocept.amqparchive.ES.search = function(query, callback) {
+    callback({hits: {
+        total: 7,
+        hits: [{_source: {path: 'foo/bar/baz.xml'}}]}});
+};
+""")
+
+        s = self.selenium
+        s.type('id=query', 'foo')
+        s.keyDown('id=query', r'\13')
+        s.waitForElementPresent('css=li')
+        s.assertText('css=li', '/messages/foo/bar/baz.xml')
+        s.assertText('id=count', '*7*')
 
     def test_elasticsearch_error_is_displayed(self):
         self.eval("""\
