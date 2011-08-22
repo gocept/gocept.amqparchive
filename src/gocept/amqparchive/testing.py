@@ -45,9 +45,9 @@ class ElasticLayer(object):
     before each test is run.
 
     NOTE the following assumptions on the enclosing buildout:
-    - the ${buildout:directory} is made available as os.environ['BUILDOUT_DIR']
-    - the elasticsearch binary is available at
-      ${buildout:directory}/elasticsearch/bin/elasticsearch
+    - the location of the elasticsearch distribution is in
+      os.environ['ELASTIC_HOME']
+      (i.e. the binary is at $ELASTIC_HOME/bin/elasticsearch
     - the hostname:port we should bind to is in os.environ['ELASTIC_HOSTNAME']
 
     The risk of targetting a production server with our "delete all indexes"
@@ -66,12 +66,11 @@ class ElasticLayer(object):
 
     @classmethod
     def start_elastic(cls):
-        elastic_home = os.path.join(
-            os.environ['BUILDOUT_DIR'], 'parts', 'elasticsearch')
-        cls.logfile = os.path.join(elastic_home, 'test.log')
+        cls.logfile = 'elasticsearch-test.log'
         hostname = os.environ['ELASTIC_HOSTNAME']
         return subprocess.Popen([
-                os.path.join(elastic_home, 'bin', 'elasticsearch'),
+                os.path.join(
+                    os.environ['ELASTIC_HOME'], 'bin', 'elasticsearch'),
                 '-f',
                 '-D', 'es.path.data=' + os.path.join(cls.tmpdir, 'data'),
                 '-D', 'es.path.work=' + os.path.join(cls.tmpdir, 'work'),
