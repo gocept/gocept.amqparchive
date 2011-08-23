@@ -4,7 +4,7 @@ CHANGES
 1.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add command-line script ``reindex_directory``.
 
 
 1.0.0 (2011-08-22)

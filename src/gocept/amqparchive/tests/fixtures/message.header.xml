@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<pickle>
+  <classic_object>
+    <klass>
+      <global name="BasicProperties" module="pika.spec"/>
+    </klass>
+    <attributes>
+      <attribute name="app_id">
+          <string>amqparchive</string>
+      </attribute>
+      <attribute name="cluster_id">
+          <none/>
+      </attribute>
+      <attribute name="content_encoding">
+          <none/>
+      </attribute>
+      <attribute name="content_type">
+          <none/>
+      </attribute>
+      <attribute name="correlation_id">
+          <none/>
+      </attribute>
+      <attribute name="delivery_mode">
+          <none/>
+      </attribute>
+      <attribute name="expiration">
+          <none/>
+      </attribute>
+      <attribute name="headers">
+          <none/>
+      </attribute>
+      <attribute name="message_id">
+          <none/>
+      </attribute>
+      <attribute name="priority">
+          <none/>
+      </attribute>
+      <attribute name="reply_to">
+          <none/>
+      </attribute>
+      <attribute name="timestamp">
+          <int>1314017019</int>
+      </attribute>
+      <attribute name="type">
+          <none/>
+      </attribute>
+      <attribute name="user_id">
+          <none/>
+      </attribute>
+    </attributes>
+  </classic_object>
+</pickle>
