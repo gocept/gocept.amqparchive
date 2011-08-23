@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-1.1.1 (unreleased)
+1.2.0 (2011-08-23)
 ------------------
 
 - Transform the XML body into a nested dict so ElasticSearch can index the
