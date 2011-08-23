@@ -24,16 +24,20 @@ Archiving, indexing and search for AMQP messages.
     license='ZPL',
     namespace_packages=['gocept'],
     install_requires=[
-        'gocept.amqprun>0.3',
+        'gocept.amqprun>0.4.1',
         'pyes',
         'setuptools',
         'zope.interface',
         'zope.component[zcml]',
+        'zope.xmlpickle',
     ],
     extras_require=dict(test=[
         'gocept.selenium',
         'mock',
         'zope.configuration',
         'zope.event',
+    ]),
+    entry_points=dict(console_scripts=[
+        'reindex_directory=gocept.amqparchive.reindex:main',
     ]),
 )
