@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gocept.amqparchive',
-    version='1.0.1dev',
+    version='1.1.0',
     author='gocept',
     author_email='mail@gocept.com',
     url='',
