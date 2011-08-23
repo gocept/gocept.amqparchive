@@ -3,6 +3,7 @@
 
 from gocept.amqprun.filestore import FileWriter
 import gocept.amqparchive.interfaces
+import gocept.amqparchive.xml
 import logging
 import optparse
 import os.path
@@ -22,7 +23,7 @@ def reindex_file(path):
     body = open(path, 'r').read()
     data = dict(
         path=path,
-        body=body,
+        data=gocept.amqparchive.xml.jsonify(body),
         )
     header_file = os.path.join(directory, FileWriter.header_filename(filename))
     header = zope.xmlpickle.loads(open(header_file).read())

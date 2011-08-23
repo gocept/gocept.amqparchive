@@ -16,7 +16,7 @@ class ReindexTest(unittest.TestCase):
                     __name__, 'fixtures/message.xml'))
             elastic = getUtility()
         data = elastic.index.call_args[0][0]
-        self.assertEqual('This is only a test.', data['body'])
+        self.assertEqual('This is only a test.', data['data']['foo'])
         self.assertEqual('amqparchive', data['app_id'])
 
     def test_reindexes_each_message_filtering_out_header_files(self):

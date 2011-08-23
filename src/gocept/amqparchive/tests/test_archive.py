@@ -15,7 +15,7 @@ import zope.event
 
 class IndexTest(gocept.amqparchive.testing.TestCase):
 
-    def create_message(self, body='testbody'):
+    def create_message(self, body='<foo>testbody</foo>'):
         from gocept.amqprun.message import Message
         message = Message({}, body, routing_key='routing')
         message.header.message_id = 'myid'
@@ -33,7 +33,7 @@ class IndexTest(gocept.amqparchive.testing.TestCase):
         self.assertEqual(1, hits['total'])
         item = hits['hits'][0]['_source']
         self.assertEqual('/foo/bar', item['path'])
-        self.assertEqual('testbody', item['body'])
+        self.assertEqual('testbody', item['data']['foo'])
         self.assertEqual('myid', item['message_id'])
 
 
@@ -60,7 +60,7 @@ class IndexIntegrationTest(gocept.amqprun.testing.MainTestCase,
                 elastic_hostname=os.environ['ELASTIC_HOSTNAME']))
         self.create_reader()
 
-        body = 'This is only a test.'
+        body = '<foo>This is only a test.</foo>'
         self.send_message(body, routing_key='test.data')
         for i in range(100):
             if not self.loop.tasks.qsize():
