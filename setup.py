@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 setup(
     name='gocept.amqparchive',
     version='1.1.1dev',
-    author='gocept',
+    author='Wolfgang Schnerring <ws@gocept.com>, Christopher Grebs <shoxi@webshox.org>',
     author_email='mail@gocept.com',
     url='',
     description="""\

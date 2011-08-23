@@ -1,6 +1,7 @@
 # Copyright (c) 2011 gocept gmbh & co. kg
 # See also LICENSE.txt
 
+import gocept.amqparchive.xml
 import gocept.amqprun.interfaces
 import zope.component
 
@@ -10,7 +11,7 @@ def index_message(event):
     message = event.message
     data = dict(
         path=event.path,
-        body=message.body,
+        data=gocept.amqparchive.xml.jsonify(message.body),
         )
     data.update(message.header.__dict__)
 
