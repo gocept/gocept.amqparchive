@@ -7,7 +7,7 @@ import gocept.amqparchive.testing
 
 class EndtoendTest(gocept.amqparchive.testing.SeleniumTestCase):
 
-    layer = gocept.amqparchive.testing.endtoend_layer
+    layer = gocept.amqparchive.testing.ENDTOEND_LAYER
 
     def test_enter_search_term_returns_urls_of_results(self):
         self.elastic.index(

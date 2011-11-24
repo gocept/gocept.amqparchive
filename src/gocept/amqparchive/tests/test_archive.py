@@ -41,7 +41,7 @@ class IndexIntegrationTest(gocept.amqprun.testing.MainTestCase,
                            gocept.amqparchive.testing.ElasticHelper):
 
     level = 3
-    layer = gocept.amqparchive.testing.QueueLayer
+    layer = gocept.amqparchive.testing.QUEUE_LAYER
 
     def setUp(self):
         super(IndexIntegrationTest, self).setUp()

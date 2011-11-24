@@ -1,10 +1,10 @@
 CHANGES
 =======
 
-1.2.1 (unreleased)
+1.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Switch to plone.testing.
 
 
 1.2.0 (2011-08-23)

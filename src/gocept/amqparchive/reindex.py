@@ -1,7 +1,7 @@
 # Copyright (c) 2011 gocept gmbh & co. kg
 # See also LICENSE.txt
 
-from gocept.amqprun.filestore import FileWriter
+from gocept.amqprun.writefiles import FileWriter
 import gocept.amqparchive.interfaces
 import gocept.amqparchive.xml
 import logging
