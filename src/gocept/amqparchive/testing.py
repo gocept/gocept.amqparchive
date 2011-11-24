@@ -7,6 +7,7 @@ import gocept.amqparchive.interfaces
 import gocept.amqprun.testing
 import gocept.selenium.base
 import os
+import plone.testing
 import pyes.exceptions
 import shutil
 import subprocess
@@ -20,27 +21,7 @@ import zope.component.testing
 import zope.configuration.xmlconfig
 
 
-class ZCALayer(object):
-    # XXX copy&paste from native.brave.connect
-
-    @classmethod
-    def setUp(cls):
-        zope.component.testing.setUp()
-
-    @classmethod
-    def tearDown(cls):
-        zope.component.testing.tearDown()
-
-    @classmethod
-    def testSetUp(cls):
-        pass
-
-    @classmethod
-    def testTearDown(cls):
-        pass
-
-
-class ElasticLayer(object):
+class ElasticLayer(plone.testing.Layer):
     """Starts and stops an elasticsearch server and deletes all its indexes
     before each test is run.
 
@@ -58,29 +39,26 @@ class ElasticLayer(object):
 
     START_TIMEOUT = 15
 
-    @classmethod
-    def setUp(cls):
-        cls.tmpdir = tempfile.mkdtemp()
-        cls.process = cls.start_elastic()
-        cls.wait_for_elastic_to_start()
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
+        self.process = self.start_elastic()
+        self.wait_for_elastic_to_start()
 
-    @classmethod
-    def start_elastic(cls):
-        cls.logfile = 'elasticsearch-test.log'
+    def start_elastic(self):
+        self.logfile = 'elasticsearch-test.log'
         hostname = os.environ['ELASTIC_HOSTNAME']
         return subprocess.Popen([
                 os.path.join(
                     os.environ['ELASTIC_HOME'], 'bin', 'elasticsearch'),
                 '-f',
-                '-D', 'es.path.data=' + os.path.join(cls.tmpdir, 'data'),
-                '-D', 'es.path.work=' + os.path.join(cls.tmpdir, 'work'),
-                '-D', 'es.path.logs=' + os.path.join(cls.tmpdir, 'logs'),
+                '-D', 'es.path.data=' + os.path.join(self.tmpdir, 'data'),
+                '-D', 'es.path.work=' + os.path.join(self.tmpdir, 'work'),
+                '-D', 'es.path.logs=' + os.path.join(self.tmpdir, 'logs'),
                 '-D', 'es.cluster.name=gocept.amqparchive.testing',
                 '-D', 'es.http.port=' + hostname.split(':', 1)[-1],
-                ], stdout=open(cls.logfile, 'w'), stderr=subprocess.STDOUT)
+                ], stdout=open(self.logfile, 'w'), stderr=subprocess.STDOUT)
 
-    @classmethod
-    def wait_for_elastic_to_start(cls):
+    def wait_for_elastic_to_start(self):
         sys.stdout.write('\n    Starting elasticsearch server')
         sys.stdout.flush()
         start = time.time()
@@ -90,30 +68,27 @@ class ElasticLayer(object):
             sys.stdout.write('.')
             sys.stdout.flush()
 
-            with open(cls.logfile, 'r') as f:
+            with open(self.logfile, 'r') as f:
                 contents = f.read()
                 if 'started' in contents:
                     sys.stdout.write(' done.\n  ')
                     return
 
-                if time.time() - start > cls.START_TIMEOUT:
+                if time.time() - start > self.START_TIMEOUT:
                     sys.stdout.write(' failed, log output follows:\n')
                     print contents
                     sys.stdout.flush()
                     raise SystemExit
 
-    @classmethod
-    def stop_elastic(cls):
-        cls.process.terminate()
-        cls.process.wait()
+    def stop_elastic(self):
+        self.process.terminate()
+        self.process.wait()
 
-    @classmethod
-    def tearDown(cls):
-        cls.stop_elastic()
-        shutil.rmtree(cls.tmpdir)
+    def tearDown(self):
+        self.stop_elastic()
+        shutil.rmtree(self.tmpdir)
 
-    @classmethod
-    def testSetUp(cls):
+    def testSetUp(self):
         # XXX using the IElasticSearch utility would be nicer,
         # but the layer structure wreaks havoc on that plan at the moment
         elastic = pyes.ES(os.environ['ELASTIC_HOSTNAME'])
@@ -122,86 +97,51 @@ class ElasticLayer(object):
         except pyes.exceptions.ElasticSearchException:
             pass
 
-    @classmethod
-    def testTearDown(cls):
-        pass
+ELASTIC_LAYER = ElasticLayer()
 
 
-class ZCMLLayer(ZCALayer):
+class SettingsLayer(plone.testing.Layer):
     """Loads our configure.zcml and provides ISettings useful for testing.
     """
 
-    @classmethod
-    def setUp(cls):
-        cls.settings = {}
-        cls.settings[
+    defaultBases = (plone.testing.zca.LAYER_CLEANUP,)
+
+    def setUp(self):
+        self['settings'] = {}
+        self['settings'][
             'gocept.amqparchive.elastic_hostname'] = os.environ[
             'ELASTIC_HOSTNAME']
-        cls.settings[
+        self['settings'][
             'gocept.amqparchive.elastic_autorefresh'] = True
-        zope.component.provideUtility(
-            cls.settings, provides=gocept.amqprun.interfaces.ISettings)
+        zope.component.getSiteManager().registerUtility(
+            self['settings'], provided=gocept.amqprun.interfaces.ISettings)
 
-        zope.configuration.xmlconfig.file(
-            'configure.zcml', gocept.amqparchive)
+    def tearDown(self):
+        zope.component.getSiteManager().unregisterUtility(
+            self['settings'], provided=gocept.amqprun.interfaces.ISettings)
 
-    @classmethod
-    def tearDown(cls):
-        pass
-
-    @classmethod
-    def testSetUp(cls):
-        pass
-
-    @classmethod
-    def testTearDown(cls):
-        pass
+SETTINGS_LAYER = SettingsLayer()
 
 
-class FunctionalLayer(ZCMLLayer, ElasticLayer):
-
-    @classmethod
-    def setUp(cls):
-        pass
-
-    @classmethod
-    def tearDown(cls):
-        pass
-
-    @classmethod
-    def testSetUp(cls):
-        pass
-
-    @classmethod
-    def testTearDown(cls):
-        pass
+ZCML_LAYER = plone.testing.zca.ZCMLSandbox(
+    name='ZCMLSandbox', module=__name__,
+    filename='configure.zcml', package=gocept.amqparchive,
+    bases=(SETTINGS_LAYER,))
 
 
-class QueueLayer(gocept.amqprun.testing.QueueLayer, ElasticLayer):
-    """Combines QueueLayer and ElasticLayer.
-
-    Note that we don't load configure here, this is provided by
-    gocept.amqprun.testing.MainTestCase.make_config()
-    """
-
-    @classmethod
-    def setUp(cls):
-        pass
-
-    @classmethod
-    def tearDown(cls):
-        pass
-
-    @classmethod
-    def testSetUp(cls):
-        pass
-
-    @classmethod
-    def testTearDown(cls):
-        pass
+FUNCTIONAL_LAYER = plone.testing.Layer(
+    name='FunctionaLayer', module=__name__,
+    bases=(ZCML_LAYER, ELASTIC_LAYER))
 
 
-class NginxLayer(object):
+# Note that we don't load configure here, this is provided by
+# gocept.amqprun.testing.MainTestCase.make_config()
+QUEUE_LAYER = plone.testing.Layer(
+    name='QueueLayer', module=__name__,
+    bases=(gocept.amqprun.testing.QUEUE_LAYER, ELASTIC_LAYER))
+
+
+class NginxLayer(plone.testing.Layer):
     """Starts and stops the nginx webserver.
 
     NOTE the following assumptions on the enclosing buildout:
@@ -215,32 +155,22 @@ class NginxLayer(object):
     nginx_conf = os.environ['NGINX_CONFIG']
     hostname = os.environ['NGINX_HOSTNAME']
 
-    @classmethod
-    def setUp(cls):
-        cls.nginx()
+    def setUp(self):
+        self.nginx()
 
-    @classmethod
-    def tearDown(cls):
-        cls.nginx('-s', 'quit')
+    def tearDown(self):
+        self.nginx('-s', 'quit')
 
-    @classmethod
-    def nginx(cls, *args):
+    def nginx(self, *args):
         subprocess.call(
-            ['nginx', '-c', cls.nginx_conf] + list(args),
+            ['nginx', '-c', self.nginx_conf] + list(args),
             stdout=open('/dev/null', 'w'), stderr=subprocess.STDOUT)
 
-    @classmethod
-    def testSetUp(cls):
-        pass
+NGINX_LAYER = NginxLayer()
 
-    @classmethod
-    def testTearDown(cls):
-        pass
-
-
-javascript_layer = gocept.selenium.base.Layer(NginxLayer)
-endtoend_layer = gocept.selenium.base.Layer(
-    ElasticLayer, NginxLayer, ZCMLLayer)
+JAVASCRIPT_LAYER = gocept.selenium.base.Layer(NGINX_LAYER)
+ENDTOEND_LAYER = gocept.selenium.base.Layer(
+    ELASTIC_LAYER, NGINX_LAYER, ZCML_LAYER)
 
 
 class ElasticHelper(object):
@@ -253,14 +183,14 @@ class ElasticHelper(object):
 
 class TestCase(unittest.TestCase, ElasticHelper):
 
-    layer = FunctionalLayer
+    layer = FUNCTIONAL_LAYER
 
 
 class SeleniumTestCase(unittest.TestCase,
                        gocept.selenium.base.TestCase,
                        ElasticHelper):
 
-    layer = javascript_layer
+    layer = JAVASCRIPT_LAYER
     level = 3
 
     def open(self, path):
