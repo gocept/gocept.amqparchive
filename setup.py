@@ -6,8 +6,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='gocept.amqparchive',
-    version='1.3.0dev',
-    author='Wolfgang Schnerring <ws@gocept.com>, Christopher Grebs <shoxi@webshox.org>',
+    version='1.2.0',
+    author='Wolfgang Schnerring <ws@gocept.com>, Christopher Grebs <christopher.grebs@native-instruments.de>',
     author_email='mail@gocept.com',
     url='',
     description="""\
@@ -24,7 +24,7 @@ Archiving, indexing and search for AMQP messages.
     license='ZPL',
     namespace_packages=['gocept'],
     install_requires=[
-        'gocept.amqprun[writefiles]>=0.5dev',
+        'gocept.amqprun>0.4.1',
         'pyes',
         'setuptools',
         'zope.interface',
@@ -34,7 +34,6 @@ Archiving, indexing and search for AMQP messages.
     extras_require=dict(test=[
         'gocept.selenium',
         'mock',
-        'plone.testing',
         'zope.configuration',
         'zope.event',
     ]),
