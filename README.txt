@@ -9,9 +9,10 @@ three features:
 - **Index** those messages using ElasticSearch_
 - **Search** for messages with a HTML/JavaScript GUI
 
-
 .. _gocept.amqprun: http://pypi.python.org/pypi/gocept.amqprun/
 .. _ElasticSearch: http://elasticsearch.org/
+
+.. contents:: :depth: 1
 
 
 Installation
@@ -74,3 +75,13 @@ server, and ``/messages`` to point to the archive directory
           autoindex on;
         }
     }
+
+
+Development
+===========
+
+The source code is available in the mercurial repository at
+https://code.gocept.com/hg/public/gocept.amqparchive
+
+Please report any bugs you find at
+https://projects.gocept.com/projects/projects/gocept-amqparchive/issues
