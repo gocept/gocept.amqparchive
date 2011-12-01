@@ -9,7 +9,7 @@ setup(
     version='1.2.0',
     author='Wolfgang Schnerring <ws@gocept.com>, Christopher Grebs <christopher.grebs@native-instruments.de>',
     author_email='mail@gocept.com',
-    url='',
+    url='https://code.gocept.com/hg/public/gocept.amqparchive',
     description="""\
 Archiving, indexing and search for AMQP messages.
 """,
