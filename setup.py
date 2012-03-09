@@ -24,7 +24,7 @@ Archiving, indexing and search for AMQP messages.
     license='ZPL',
     namespace_packages=['gocept'],
     install_requires=[
-        'gocept.amqprun>=0.6dev',
+        'gocept.amqprun>=0.7.dev',
         'lxml',
         'pyes',
         'setuptools',
