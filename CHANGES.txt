@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.3 (unreleased)
-----------------
+1.2.3 (2012-04-18)
+------------------
 
 - Catch connection errors to ElasticSearch so they don't break the normal
   message handling. Messages that have not been index due to this can still be
