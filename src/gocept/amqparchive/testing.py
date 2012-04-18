@@ -2,7 +2,6 @@
 # See also LICENSE.txt
 
 import gocept.amqparchive
-import gocept.amqparchive.connection
 import gocept.amqparchive.interfaces
 import gocept.amqprun.testing
 import gocept.selenium.base
@@ -17,8 +16,6 @@ import time
 import time
 import unittest
 import zope.component
-import zope.component.testing
-import zope.configuration.xmlconfig
 
 
 class ElasticLayer(plone.testing.Layer):
