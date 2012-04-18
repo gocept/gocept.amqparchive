@@ -3,7 +3,11 @@
 
 import gocept.amqparchive.xml
 import gocept.amqprun.interfaces
+import logging
 import zope.component
+
+
+log = logging.getLogger(__name__)
 
 
 @zope.component.adapter(gocept.amqprun.interfaces.IMessageStored)
@@ -17,4 +21,7 @@ def index_message(event):
 
     elastic = zope.component.getUtility(
         gocept.amqparchive.interfaces.IElasticSearch)
-    elastic.index(data, 'queue', 'message')
+    try:
+        elastic.index(data, 'queue', 'message')
+    except:
+        log.warning('Error connecting to ES', exc_info=True)

@@ -5,6 +5,7 @@ import datetime
 import gocept.amqparchive.testing
 import gocept.amqprun.interfaces
 import gocept.amqprun.testing
+import gocept.testing.mock
 import os
 import shutil
 import tempfile
@@ -13,6 +14,14 @@ import zope.event
 
 
 class IndexTest(gocept.amqparchive.testing.TestCase):
+
+    def setUp(self):
+        super(IndexTest, self).setUp()
+        self.patches = gocept.testing.mock.Patches()
+
+    def tearDown(self):
+        self.patches.reset()
+        super(IndexTest, self).tearDown()
 
     def create_message(self, body='<foo>testbody</foo>'):
         from gocept.amqprun.message import Message
@@ -34,6 +43,17 @@ class IndexTest(gocept.amqparchive.testing.TestCase):
         self.assertEqual('/foo/bar', item['path'])
         self.assertEqual('testbody', item['data']['foo'])
         self.assertEqual('myid', item['message_id'])
+
+    def test_exceptions_are_logged_and_not_raised(self):
+        message = self.create_message()
+        index = self.patches.add_object(self.elastic, 'index')
+        index.side_effect = RuntimeError('provoked')
+
+        log_warning = self.patches.add_object(
+            gocept.amqparchive.archive.log, 'warning')
+        zope.event.notify(gocept.amqprun.interfaces.MessageStored(
+                message, '/foo/bar'))
+        self.assertTrue(log_warning.called)
 
 
 class IndexIntegrationTest(gocept.amqprun.testing.MainTestCase,
