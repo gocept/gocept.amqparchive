@@ -34,6 +34,7 @@ Archiving, indexing and search for AMQP messages.
     ],
     extras_require=dict(test=[
         'gocept.selenium',
+        'gocept.testing',
         'mock',
         'zope.configuration',
         'zope.event',
