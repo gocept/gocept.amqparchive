@@ -55,6 +55,15 @@ class IndexTest(gocept.amqparchive.testing.TestCase):
                 message, '/foo/bar'))
         self.assertTrue(log_warning.called)
 
+    def test_invalid_xml_does_not_break_indexing(self):
+        message = self.create_message('<qux')
+        zope.event.notify(gocept.amqprun.interfaces.MessageStored(
+                message, '/foo/bar'))
+        time.sleep(1) # give elasticsearch time to settle
+        result = self.elastic.search({'query': {'text': {'_all': 'qux'}}})
+        hits = result['hits']
+        self.assertEqual(1, hits['total'])
+
 
 class IndexIntegrationTest(gocept.amqprun.testing.MainTestCase,
                            gocept.amqparchive.testing.ElasticHelper):

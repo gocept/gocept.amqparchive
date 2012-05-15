@@ -8,7 +8,10 @@ import lxml.etree
 
 
 def jsonify(xmltext):
-    return to_dict(lxml.etree.fromstring(xmltext))
+    try:
+        return to_dict(lxml.etree.fromstring(xmltext))
+    except lxml.etree.XMLSyntaxError:
+        return dict(raw=xmltext)
 
 
 def simplify_dict(data):
