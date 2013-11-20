@@ -48,6 +48,8 @@ class ElasticLayer(plone.testing.Layer):
                 os.path.join(
                     os.environ['ELASTIC_HOME'], 'bin', 'elasticsearch'),
                 '-f',
+                # XXX our really old ES version has problems with java-1.7
+                '-Xss256k',
                 '-D', 'es.path.data=' + os.path.join(self.tmpdir, 'data'),
                 '-D', 'es.path.work=' + os.path.join(self.tmpdir, 'work'),
                 '-D', 'es.path.logs=' + os.path.join(self.tmpdir, 'logs'),
