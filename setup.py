@@ -33,6 +33,7 @@ Archiving, indexing and search for AMQP messages.
         'zope.xmlpickle',
     ],
     extras_require=dict(test=[
+        'gocept.amqprun [test]>=0.7.dev',
         'gocept.selenium',
         'gocept.testing',
         'mock',
