@@ -4,6 +4,8 @@ Changelog
 1.3 (unreleased)
 ----------------
 
+- Add parallel worker mode to ``reindex_directory``.
+
 - Handle invalid XML input (#10864).
 
 
