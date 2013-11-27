@@ -153,6 +153,7 @@ class NginxLayer(plone.testing.Layer):
 
     nginx_conf = os.environ['NGINX_CONFIG']
     hostname = os.environ['NGINX_HOSTNAME']
+    debug = False
 
     def setUp(self):
         self.nginx()
@@ -161,9 +162,10 @@ class NginxLayer(plone.testing.Layer):
         self.nginx('-s', 'quit')
 
     def nginx(self, *args):
+        stdout = sys.stdout if self.debug else open('/dev/null', 'w')
         subprocess.call(
             ['nginx', '-c', self.nginx_conf] + list(args),
-            stdout=open('/dev/null', 'w'), stderr=subprocess.STDOUT)
+            stdout=stdout, stderr=subprocess.STDOUT)
 
 NGINX_LAYER = NginxLayer()
 
