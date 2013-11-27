@@ -24,7 +24,7 @@ def reindex_file(path):
     data = dict(
         path=path,
         data=gocept.amqparchive.xml.jsonify(body),
-        )
+    )
     header_file = os.path.join(directory, FileWriter.header_filename(filename))
     header = zope.xmlpickle.loads(open(header_file).read())
     data.update(header.__dict__)

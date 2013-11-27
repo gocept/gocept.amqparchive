@@ -16,7 +16,7 @@ def index_message(event):
     data = dict(
         path=event.path,
         data=gocept.amqparchive.xml.jsonify(message.body),
-        )
+    )
     data.update(message.header.__dict__)
 
     elastic = zope.component.getUtility(

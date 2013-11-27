@@ -45,17 +45,17 @@ class ElasticLayer(plone.testing.Layer):
         self.logfile = 'elasticsearch-test.log'
         hostname = os.environ['ELASTIC_HOSTNAME']
         return subprocess.Popen([
-                os.path.join(
-                    os.environ['ELASTIC_HOME'], 'bin', 'elasticsearch'),
-                '-f',
-                # XXX our really old ES version has problems with java-1.7
-                '-Xss256k',
-                '-D', 'es.path.data=' + os.path.join(self.tmpdir, 'data'),
-                '-D', 'es.path.work=' + os.path.join(self.tmpdir, 'work'),
-                '-D', 'es.path.logs=' + os.path.join(self.tmpdir, 'logs'),
-                '-D', 'es.cluster.name=gocept.amqparchive.testing',
-                '-D', 'es.http.port=' + hostname.split(':', 1)[-1],
-                ], stdout=open(self.logfile, 'w'), stderr=subprocess.STDOUT)
+            os.path.join(
+                os.environ['ELASTIC_HOME'], 'bin', 'elasticsearch'),
+            '-f',
+            # XXX our really old ES version has problems with java-1.7
+            '-Xss256k',
+            '-D', 'es.path.data=' + os.path.join(self.tmpdir, 'data'),
+            '-D', 'es.path.work=' + os.path.join(self.tmpdir, 'work'),
+            '-D', 'es.path.logs=' + os.path.join(self.tmpdir, 'logs'),
+            '-D', 'es.cluster.name=gocept.amqparchive.testing',
+            '-D', 'es.http.port=' + hostname.split(':', 1)[-1],
+        ], stdout=open(self.logfile, 'w'), stderr=subprocess.STDOUT)
 
     def wait_for_elastic_to_start(self):
         sys.stdout.write('\n    Starting elasticsearch server')

@@ -34,8 +34,8 @@ class IndexTest(gocept.amqparchive.testing.TestCase):
     def test_indexes_body_and_headers(self):
         message = self.create_message()
         zope.event.notify(gocept.amqprun.interfaces.MessageStored(
-                message, '/foo/bar'))
-        time.sleep(1) # give elasticsearch time to settle
+            message, '/foo/bar'))
+        time.sleep(1)  # give elasticsearch time to settle
         result = self.elastic.search({'query': {'text': {'_all': 'foo'}}})
         hits = result['hits']
         self.assertEqual(1, hits['total'])
@@ -52,14 +52,14 @@ class IndexTest(gocept.amqparchive.testing.TestCase):
         log_warning = self.patches.add_object(
             gocept.amqparchive.archive.log, 'warning')
         zope.event.notify(gocept.amqprun.interfaces.MessageStored(
-                message, '/foo/bar'))
+            message, '/foo/bar'))
         self.assertTrue(log_warning.called)
 
     def test_invalid_xml_does_not_break_indexing(self):
         message = self.create_message('<qux')
         zope.event.notify(gocept.amqprun.interfaces.MessageStored(
-                message, '/foo/bar'))
-        time.sleep(1) # give elasticsearch time to settle
+            message, '/foo/bar'))
+        time.sleep(1)  # give elasticsearch time to settle
         result = self.elastic.search({'query': {'text': {'_all': 'qux'}}})
         hits = result['hits']
         self.assertEqual(1, hits['total'])
@@ -81,11 +81,11 @@ class IndexIntegrationTest(gocept.amqprun.testing.MainTestCase,
 
     def test_message_should_be_indexed(self):
         self.make_config(__name__, 'index', mapping=dict(
-                routing_key='test.data',
-                directory=self.tmpdir,
-                queue_name=self.get_queue_name('test'),
-                pattern='foo/bar/baz.xml',
-                elastic_hostname=os.environ['ELASTIC_HOSTNAME']))
+            routing_key='test.data',
+            directory=self.tmpdir,
+            queue_name=self.get_queue_name('test'),
+            pattern='foo/bar/baz.xml',
+            elastic_hostname=os.environ['ELASTIC_HOSTNAME']))
         self.create_reader()
 
         body = '<foo>This is only a test.</foo>'
