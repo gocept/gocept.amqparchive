@@ -86,16 +86,11 @@ class IndexIntegrationTest(gocept.amqprun.testing.MainTestCase,
             queue_name=self.get_queue_name('test'),
             pattern='foo/bar/baz.xml',
             elastic_hostname=os.environ['ELASTIC_HOSTNAME']))
-        self.create_reader()
+        self.start_server()
 
         body = '<foo>This is only a test.</foo>'
         self.send_message(body, routing_key='test.data')
-        for i in range(100):
-            if not self.loop.tasks.qsize():
-                break
-            time.sleep(0.05)
-        else:
-            self.fail('Message was not processed.')
+        self.wait_for_processing()
 
         self.assertEqual(
             2, len(os.listdir(os.path.join(self.tmpdir, 'foo', 'bar'))))
