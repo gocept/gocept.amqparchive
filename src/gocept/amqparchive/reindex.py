@@ -10,6 +10,7 @@ import multiprocessing
 import optparse
 import os.path
 import pyes
+import time
 import zope.component
 import zope.xmlpickle
 
@@ -49,29 +50,47 @@ def collect_message_files(path):
 
 
 def reindex_directory(path, jobs):
-    files = collect_message_files(path)
     if jobs == 1:
+        files = collect_message_files(path)
         for f in files:
             reindex_file(f, path)
     else:
         queue = multiprocessing.JoinableQueue()
-        for f in files:
-            queue.put(f)
+        done = multiprocessing.Event()
+        collect = multiprocessing.Process(
+            target=worker_collect_files, args=(queue, path))
+        collect.start()
+
         workers = []
         for i in range(jobs):
             job = multiprocessing.Process(
-                target=reindex_worker, args=(queue, path))
+                target=worker_reindex_file, args=(queue, done, path))
             job.start()
             workers.append(job)
+
+        collect.join()
+        done.set()
         queue.join()
 
 
-def reindex_worker(queue, base):
+def worker_collect_files(queue, path):
+    files = collect_message_files(path)
+    for f in files:
+        queue.put(f)
+
+
+def worker_reindex_file(queue, done, base):
     while True:
         try:
             f = queue.get(False)
         except Queue.Empty:
-            break
+            if done.is_set():
+                break
+            else:
+                log.debug('Waiting 1s for more work')
+                time.sleep(1)
+                continue
+
         reindex_file(f, base)
         queue.task_done()
 
