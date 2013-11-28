@@ -99,7 +99,7 @@ def worker_reindex_file(queue, done, base):
         try:
             reindex_file(f, base)
         except pyes.exceptions.ElasticSearchException:
-            log.error(f, exc_info=True)
+            log.error('ERROR %s', f)
         queue.task_done()
 
 
