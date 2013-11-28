@@ -21,18 +21,15 @@ log = logging.getLogger(__name__)
 def reindex_file(path, base):
     log.info(path)
 
-    directory = os.path.dirname(path)
-    filename = os.path.basename(path)
-    basename, extension = os.path.splitext(filename)
-
     if not base.endswith('/'):
         base += '/'
-
     body = open(path, 'r').read()
     data = dict(
         path=path.replace('%s' % base, ''),
         data=gocept.amqparchive.xml.jsonify(body),
     )
+    directory = os.path.dirname(path)
+    filename = os.path.basename(path)
     header_file = os.path.join(directory, FileWriter.header_filename(filename))
     header = zope.xmlpickle.loads(open(header_file).read())
     data.update(header.__dict__)
