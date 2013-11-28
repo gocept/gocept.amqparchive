@@ -25,9 +25,12 @@ def reindex_file(path, base):
     filename = os.path.basename(path)
     basename, extension = os.path.splitext(filename)
 
+    if not base.endswith('/'):
+        base += '/'
+
     body = open(path, 'r').read()
     data = dict(
-        path=path.replace('%s/' % base, ''),
+        path=path.replace('%s' % base, ''),
         data=gocept.amqparchive.xml.jsonify(body),
     )
     header_file = os.path.join(directory, FileWriter.header_filename(filename))
