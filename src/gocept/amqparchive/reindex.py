@@ -49,28 +49,29 @@ def collect_message_files(path):
             collect_message_files(os.path.join(dirpath, d))
 
 
-def reindex_directory(path, jobs):
-    if jobs == 1:
-        files = collect_message_files(path)
-        for f in files:
-            reindex_file(f, path)
-    else:
-        queue = multiprocessing.JoinableQueue()
-        done = multiprocessing.Event()
-        collect = multiprocessing.Process(
-            target=worker_collect_files, args=(queue, path))
-        collect.start()
+def reindex_directory(path):
+    files = collect_message_files(path)
+    for f in files:
+        reindex_file(f, path)
 
-        workers = []
-        for i in range(jobs):
-            job = multiprocessing.Process(
-                target=worker_reindex_file, args=(queue, done, path))
-            job.start()
-            workers.append(job)
 
-        collect.join()
-        done.set()
-        queue.join()
+def reindex_directory_parallel(path, jobs):
+    queue = multiprocessing.JoinableQueue()
+    done = multiprocessing.Event()
+    collect = multiprocessing.Process(
+        target=worker_collect_files, args=(queue, path))
+    collect.start()
+
+    workers = []
+    for i in range(jobs):
+        job = multiprocessing.Process(
+            target=worker_reindex_file, args=(queue, done, path))
+        job.start()
+        workers.append(job)
+
+    collect.join()
+    done.set()
+    queue.join()
 
 
 def worker_collect_files(queue, path):
@@ -134,4 +135,9 @@ def main(argv=None):
         log.info('deleting index "queue"')
         delete_index('queue')
 
-    reindex_directory(arguments[0], int(options.jobs))
+    jobs = int(options.jobs)
+    if jobs == 1:
+        reindex_directory(arguments[0])
+    else:
+        reindex_directory_parallel(arguments[0], jobs)
+
