@@ -45,6 +45,9 @@ def reindex_file(path, base):
 def collect_message_files(path):
     for (dirpath, dirnames, filenames) in os.walk(path):
         for f in filenames:
+            if f.startswith('.'):
+                # skip hidden files
+                continue
             f = os.path.join(dirpath, f)
             if not FileWriter.is_header_file(f):
                 yield f
