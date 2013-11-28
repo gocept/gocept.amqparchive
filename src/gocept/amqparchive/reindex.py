@@ -10,6 +10,7 @@ import multiprocessing
 import optparse
 import os.path
 import pyes
+import pyes.exceptions
 import time
 import zope.component
 import zope.xmlpickle
@@ -95,7 +96,10 @@ def worker_reindex_file(queue, done, base):
                 time.sleep(1)
                 continue
 
-        reindex_file(f, base)
+        try:
+            reindex_file(f, base)
+        except pyes.exceptions.ElasticSearchException:
+            log.error(f, exc_info=True)
         queue.task_done()
 
 
