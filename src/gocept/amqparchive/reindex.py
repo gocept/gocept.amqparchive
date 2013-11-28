@@ -17,7 +17,7 @@ import zope.xmlpickle
 log = logging.getLogger(__name__)
 
 
-def reindex_file(path):
+def reindex_file(path, base):
     log.info(path)
 
     directory = os.path.dirname(path)
@@ -26,7 +26,7 @@ def reindex_file(path):
 
     body = open(path, 'r').read()
     data = dict(
-        path=path,
+        path=path.replace('%s/' % base, ''),
         data=gocept.amqparchive.xml.jsonify(body),
     )
     header_file = os.path.join(directory, FileWriter.header_filename(filename))
@@ -52,7 +52,7 @@ def reindex_directory(path, jobs):
     files = collect_message_files(path)
     if jobs == 1:
         for f in files:
-            reindex_file(f)
+            reindex_file(f, path)
     else:
         queue = multiprocessing.JoinableQueue()
         for f in files:
@@ -60,19 +60,19 @@ def reindex_directory(path, jobs):
         workers = []
         for i in range(jobs):
             job = multiprocessing.Process(
-                target=reindex_worker, args=(queue,))
+                target=reindex_worker, args=(queue, path))
             job.start()
             workers.append(job)
         queue.join()
 
 
-def reindex_worker(queue):
+def reindex_worker(queue, base):
     while True:
         try:
             f = queue.get(False)
         except Queue.Empty:
             break
-        reindex_file(f)
+        reindex_file(f, base)
         queue.task_done()
 
 
