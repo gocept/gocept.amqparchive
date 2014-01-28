@@ -103,7 +103,7 @@ def worker_reindex_file(queue, done, base):
         try:
             reindex_file(f, base)
         except pyes.exceptions.ElasticSearchException:
-            log.error('ERROR %s', f)
+            log.error('%s', f)
         queue.task_done()
 
 
@@ -138,7 +138,9 @@ def main(argv=None):
     if not options.connection:
         o.error('elasticsearch server name is required')
 
-    logging.basicConfig(level=logging.ERROR, format='%(message)s')
+    logging.basicConfig(
+        level=logging.ERROR,
+        format='%(asctime)s [%(levelname)s] %(message)s')
     log.setLevel(logging.INFO)
 
     es = pyes.ES(options.connection)
