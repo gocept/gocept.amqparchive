@@ -26,7 +26,7 @@ def reindex_file(path, base):
         base += '/'
     body = open(path, 'r').read()
     data = dict(
-        path=path.replace('%s' % base, ''),
+        path=path.replace(base, ''),
         data=gocept.amqparchive.xml.jsonify(body),
     )
     directory = os.path.dirname(path)
