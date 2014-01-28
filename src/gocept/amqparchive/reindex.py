@@ -10,7 +10,6 @@ import multiprocessing
 import optparse
 import os.path
 import pyes
-import pyes.exceptions
 import time
 import zope.component
 import zope.xmlpickle
@@ -58,7 +57,10 @@ def reindex_directory(path, base):
         base = path
     files = collect_message_files(path)
     for f in files:
-        reindex_file(f, base)
+        try:
+            reindex_file(f, base)
+        except:
+            log.error('Error reindexing %s', f, exc_info=True)
 
 
 def reindex_directory_parallel(path, base, jobs):
@@ -102,8 +104,8 @@ def worker_reindex_file(queue, done, base):
 
         try:
             reindex_file(f, base)
-        except pyes.exceptions.ElasticSearchException:
-            log.error('%s', f)
+        except:
+            log.error('Error reindexing %s', f, exc_info=True)
         queue.task_done()
 
 
