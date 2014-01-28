@@ -53,13 +53,17 @@ def collect_message_files(path):
             collect_message_files(os.path.join(dirpath, d))
 
 
-def reindex_directory(path):
+def reindex_directory(path, base):
+    if base is None:
+        base = path
     files = collect_message_files(path)
     for f in files:
-        reindex_file(f, path)
+        reindex_file(f, base)
 
 
-def reindex_directory_parallel(path, jobs):
+def reindex_directory_parallel(path, base, jobs):
+    if base is None:
+        base = path
     queue = multiprocessing.JoinableQueue()
     done = multiprocessing.Event()
     collect = multiprocessing.Process(
@@ -69,7 +73,7 @@ def reindex_directory_parallel(path, jobs):
     workers = []
     for i in range(jobs):
         job = multiprocessing.Process(
-            target=worker_reindex_file, args=(queue, done, path))
+            target=worker_reindex_file, args=(queue, done, base))
         job.start()
         workers.append(job)
 
@@ -123,6 +127,9 @@ def main(argv=None):
     o.add_option(
         '-j', '--jobs', default='1',
         help='amount of worker processes')
+    o.add_option(
+        '-b', '--basedir', default=None,
+        help='index filenames relative to this directory')
 
     options, arguments = o.parse_args(argv)
     if len(arguments) != 1:
@@ -144,7 +151,6 @@ def main(argv=None):
 
     jobs = int(options.jobs)
     if jobs == 1:
-        reindex_directory(arguments[0])
+        reindex_directory(arguments[0], options.basedir)
     else:
-        reindex_directory_parallel(arguments[0], jobs)
-
+        reindex_directory_parallel(arguments[0], jobs, options.basedir)
