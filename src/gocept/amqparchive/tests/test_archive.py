@@ -91,11 +91,11 @@ class IndexIntegrationTest(gocept.amqprun.testing.MainTestCase,
         body = '<foo>This is only a test.</foo>'
         self.send_message(body, routing_key='test.data')
         self.wait_for_processing()
+        # we're concurrent to the handler and we seem to be too fast
+        time.sleep(2)
 
         self.assertEqual(
             2, len(os.listdir(os.path.join(self.tmpdir, 'foo', 'bar'))))
-        # we're concurrent to the handler and we seem to be too fast
-        time.sleep(2)
         result = self.elastic.search({'query': {'text': {'_all': 'only'}}})
         self.assertEqual(1, result['hits']['total'])
         hit = result['hits']['hits'][0]
