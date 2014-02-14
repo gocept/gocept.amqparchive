@@ -18,9 +18,10 @@ class ElasticSearch(pyes.ES):
 
     def __init__(self):
         # socket doesn't accept unicode for hostname/port
-        return super(ElasticSearch, self).__init__(
-            self.settings['gocept.amqparchive.elastic_hostname'].encode(
-                'utf8'))
+        hosts = self.settings[
+            'gocept.amqparchive.elastic_hostname'].encode('utf8')
+        hosts = hosts.split(',')
+        return super(ElasticSearch, self).__init__(hosts)
 
     def index(self, *args, **kw):
         """ElasticSearch by default doesn't update itself immediately,

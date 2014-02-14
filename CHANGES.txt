@@ -4,6 +4,8 @@ Changelog
 1.2.5 (unreleased)
 ------------------
 
+- Allow configuring multiple elasticsearch hosts.
+
 - Fix bug in ``reindex_directory``: we need to index the path relativ to the
   base directory, not the full filename.
 
