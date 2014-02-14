@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2.5 (unreleased)
+1.2.5 (2014-02-14)
 ------------------
 
 - Allow configuring multiple elasticsearch hosts.
