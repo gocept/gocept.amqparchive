@@ -27,7 +27,7 @@ gocept.amqparchive.ElasticSearch = Class.extend({
         self.elasticsearch.search({
             indices: self.index,
             types: self.type,
-            queryDSL: {query: {'text': {'_all': query}}},
+            queryDSL: {query: {'match': {'_all': query}}},
             callback: function(json, xhr) {
                 if (xhr.status == 200) {
                     callback(json);

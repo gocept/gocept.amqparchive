@@ -4,7 +4,7 @@ Changelog
 1.2.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Update to ElasticSearch 1.0 API.
 
 
 1.2.5 (2014-02-14)
