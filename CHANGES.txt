@@ -6,6 +6,10 @@ Changelog
 
 - Update to current `bootstrap.py`.
 
+- Move repository to `bitbucket.org`_.
+
+.. _`bitbucket.org` : https://bitbucket.org/gocept/gocept.amqparchive
+
 
 1.2.6 (2014-02-17)
 ------------------
