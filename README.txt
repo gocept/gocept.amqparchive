@@ -81,7 +81,7 @@ Development
 ===========
 
 The source code is available in the mercurial repository at
-https://code.gocept.com/hg/public/gocept.amqparchive
+https://bitbucket.org/gocept/gocept.amqparchive
 
 Please report any bugs you find at
-https://projects.gocept.com/projects/projects/gocept-amqparchive/issues
+https://bitbucket.org/gocept/gocept.amqparchive/issues
