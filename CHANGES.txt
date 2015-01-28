@@ -4,7 +4,7 @@ Changelog
 1.2.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Update to current `bootstrap.py`.
 
 
 1.2.6 (2014-02-17)
