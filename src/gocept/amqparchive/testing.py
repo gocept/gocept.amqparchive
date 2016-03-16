@@ -78,6 +78,7 @@ class ElasticLayer(plone.testing.Layer):
                     print contents
                     sys.stdout.flush()
                     raise SystemExit
+            time.sleep(1)
 
     def stop_elastic(self):
         self.process.terminate()
