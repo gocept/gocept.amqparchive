@@ -44,7 +44,7 @@ class ElasticLayer(plone.testing.Layer):
     def start_elastic(self):
         self.logfile = 'elasticsearch-test.log'
         hostname = os.environ['ELASTIC_HOSTNAME']
-        return subprocess.Popen([
+        result = subprocess.Popen([
             os.path.join(
                 os.environ['ELASTIC_HOME'], 'bin', 'elasticsearch'),
             '-f',
@@ -56,6 +56,7 @@ class ElasticLayer(plone.testing.Layer):
             '-D', 'es.cluster.name=gocept.amqparchive.testing',
             '-D', 'es.http.port=' + hostname.split(':', 1)[-1],
         ], stdout=open(self.logfile, 'w'), stderr=subprocess.STDOUT)
+        return result
 
     def wait_for_elastic_to_start(self):
         sys.stdout.write('\n    Starting elasticsearch server')
@@ -63,7 +64,6 @@ class ElasticLayer(plone.testing.Layer):
         start = time.time()
 
         while True:
-            time.sleep(0.5)
             sys.stdout.write('.')
             sys.stdout.flush()
 
@@ -165,7 +165,8 @@ class NginxLayer(plone.testing.Layer):
         stdout = sys.stdout if self.debug else open('/dev/null', 'w')
         subprocess.call(
             ['nginx', '-c', self.nginx_conf] + list(args),
-            stdout=stdout, stderr=subprocess.STDOUT)
+            stdout=stdout, stderr=subprocess.STDOUT,
+            cwd=os.path.dirname(self.nginx_conf))
 
 NGINX_LAYER = NginxLayer()
 
