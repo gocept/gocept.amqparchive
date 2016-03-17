@@ -21,7 +21,7 @@ window.gocept.amqparchive.ES.search = function(query, callback) {
 
         s = self.selenium
         s.type('id=query', 'foo')
-        s.keyDown('id=query', r'\13')
+        s.click("id=search")
         s.waitForElementPresent('css=li')
         s.assertText('css=li', '/messages/foo/bar/baz.xml')
 
@@ -36,7 +36,7 @@ window.gocept.amqparchive.ES.search = function(query, callback) {
 
         s = self.selenium
         s.type('id=query', 'foo')
-        s.keyDown('id=query', r'\13')
+        s.click("id=search")
         s.waitForElementPresent('css=li')
         s.assertText('css=li', '/messages/foo/bar/baz.xml')
         s.assertText('id=count', '*7*')
@@ -52,6 +52,6 @@ window.gocept.amqparchive.ES.elasticsearch.search = function(params) {
 """)
 
         s = self.selenium
-        s.keyDown('id=query', r'\13')
+        s.click("id=search")
         s.waitForElementPresent('id=error-dialog')
         s.assertText('id=error-dialog', '*provoked error*')
