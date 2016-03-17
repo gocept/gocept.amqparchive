@@ -1,9 +1,12 @@
 syntax: glob
-*.pyc
+
 *.egg-info
+*.pyc
+.cache
 .installed.cfg
 bin
 develop-eggs
+elasticsearch-test.log
 include
 lib
 local
