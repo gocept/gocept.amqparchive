@@ -1,10 +1,7 @@
-# Copyright (c) 2011 gocept gmbh & co. kg
-# See also LICENSE.txt
-
 import gocept.amqparchive
 import gocept.amqparchive.interfaces
 import gocept.amqprun.testing
-import gocept.selenium.base
+import gocept.selenium.webdriver
 import os
 import plone.testing
 import pyes.exceptions
@@ -13,14 +10,14 @@ import subprocess
 import sys
 import tempfile
 import time
-import time
 import unittest
 import zope.component
 
 
 class ElasticLayer(plone.testing.Layer):
-    """Starts and stops an elasticsearch server and deletes all its indexes
-    before each test is run.
+    """Start and stop an elasticsearch server.
+
+    Delete all its indexes before each test is run.
 
     NOTE the following assumptions on the enclosing buildout:
     - the location of the elasticsearch distribution is in
@@ -44,7 +41,7 @@ class ElasticLayer(plone.testing.Layer):
     def start_elastic(self):
         self.logfile = 'elasticsearch-test.log'
         hostname = os.environ['ELASTIC_HOSTNAME']
-        return subprocess.Popen([
+        result = subprocess.Popen([
             os.path.join(
                 os.environ['ELASTIC_HOME'], 'bin', 'elasticsearch'),
             '-f',
@@ -56,6 +53,7 @@ class ElasticLayer(plone.testing.Layer):
             '-D', 'es.cluster.name=gocept.amqparchive.testing',
             '-D', 'es.http.port=' + hostname.split(':', 1)[-1],
         ], stdout=open(self.logfile, 'w'), stderr=subprocess.STDOUT)
+        return result
 
     def wait_for_elastic_to_start(self):
         sys.stdout.write('\n    Starting elasticsearch server')
@@ -63,7 +61,6 @@ class ElasticLayer(plone.testing.Layer):
         start = time.time()
 
         while True:
-            time.sleep(0.5)
             sys.stdout.write('.')
             sys.stdout.flush()
 
@@ -78,6 +75,7 @@ class ElasticLayer(plone.testing.Layer):
                     print contents
                     sys.stdout.flush()
                     raise SystemExit
+            time.sleep(1)
 
     def stop_elastic(self):
         self.process.terminate()
@@ -100,8 +98,7 @@ ELASTIC_LAYER = ElasticLayer()
 
 
 class SettingsLayer(plone.testing.Layer):
-    """Loads our configure.zcml and provides ISettings useful for testing.
-    """
+    """Load our configure.zcml and provides ISettings useful for testing."""
 
     defaultBases = (plone.testing.zca.LAYER_CLEANUP,)
 
@@ -157,24 +154,38 @@ class NginxLayer(plone.testing.Layer):
 
     def setUp(self):
         self.nginx()
+        self['http_address'] = self.hostname
 
     def tearDown(self):
         self.nginx('-s', 'quit')
+        del self['http_address']
 
     def nginx(self, *args):
         stdout = sys.stdout if self.debug else open('/dev/null', 'w')
         subprocess.call(
             ['nginx', '-c', self.nginx_conf] + list(args),
-            stdout=stdout, stderr=subprocess.STDOUT)
+            stdout=stdout, stderr=subprocess.STDOUT,
+            cwd=os.path.dirname(self.nginx_conf))
 
 NGINX_LAYER = NginxLayer()
 
-JAVASCRIPT_LAYER = gocept.selenium.base.Layer(NGINX_LAYER)
-ENDTOEND_LAYER = gocept.selenium.base.Layer(
-    ELASTIC_LAYER, NGINX_LAYER, ZCML_LAYER)
+
+def WebdriverLayer(bases, name):
+    """Webdriver layer based on other layer(s)."""
+    webdriver = gocept.selenium.webdriver.Layer(
+        bases=bases, name='{}Webdriver'.format(name), module=__name__)
+    return gocept.selenium.webdriver.WebdriverSeleneseLayer(
+        bases=[webdriver], name='{}WebdriverSelenese'.format(name),
+        module=__name__)
+
+
+JAVASCRIPT_LAYER = WebdriverLayer([NGINX_LAYER], 'JavaScript')
+ENDTOEND_LAYER = WebdriverLayer(
+    [ELASTIC_LAYER, NGINX_LAYER, ZCML_LAYER], 'EndToEnd')
 
 
 class ElasticHelper(object):
+    """Mix-in to ease getting the elastic search utility."""
 
     @property
     def elastic(self):
@@ -183,13 +194,15 @@ class ElasticHelper(object):
 
 
 class TestCase(unittest.TestCase, ElasticHelper):
+    """Default test case class."""
 
     layer = FUNCTIONAL_LAYER
 
 
 class SeleniumTestCase(unittest.TestCase,
-                       gocept.selenium.base.TestCase,
+                       gocept.selenium.webdriver.WebdriverSeleneseTestCase,
                        ElasticHelper):
+    """Test class for selenium tests."""
 
     layer = JAVASCRIPT_LAYER
     level = 3
@@ -198,6 +211,4 @@ class SeleniumTestCase(unittest.TestCase,
         self.selenium.open('http://%s%s' % (NginxLayer.hostname, path))
 
     def eval(self, text):
-        return self.selenium.getEval(
-            "var window = selenium.browserbot.getCurrentWindow();\n"
-            + text)
+        return self.selenium.getEval(text)
