@@ -1,6 +1,3 @@
-# Copyright (c) 2011 gocept gmbh & co. kg
-# See also LICENSE.txt
-
 import gocept.amqparchive
 import gocept.amqparchive.interfaces
 import gocept.amqprun.testing
@@ -13,14 +10,14 @@ import subprocess
 import sys
 import tempfile
 import time
-import time
 import unittest
 import zope.component
 
 
 class ElasticLayer(plone.testing.Layer):
-    """Starts and stops an elasticsearch server and deletes all its indexes
-    before each test is run.
+    """Start and stop an elasticsearch server.
+
+    Delete all its indexes before each test is run.
 
     NOTE the following assumptions on the enclosing buildout:
     - the location of the elasticsearch distribution is in
@@ -101,8 +98,7 @@ ELASTIC_LAYER = ElasticLayer()
 
 
 class SettingsLayer(plone.testing.Layer):
-    """Loads our configure.zcml and provides ISettings useful for testing.
-    """
+    """Load our configure.zcml and provides ISettings useful for testing."""
 
     defaultBases = (plone.testing.zca.LAYER_CLEANUP,)
 
@@ -177,6 +173,7 @@ ENDTOEND_LAYER = gocept.selenium.base.Layer(
 
 
 class ElasticHelper(object):
+    """Mix-in to ease getting the elastic search utility."""
 
     @property
     def elastic(self):
@@ -185,6 +182,7 @@ class ElasticHelper(object):
 
 
 class TestCase(unittest.TestCase, ElasticHelper):
+    """Default test case class."""
 
     layer = FUNCTIONAL_LAYER
 
@@ -192,6 +190,7 @@ class TestCase(unittest.TestCase, ElasticHelper):
 class SeleniumTestCase(unittest.TestCase,
                        gocept.selenium.base.TestCase,
                        ElasticHelper):
+    """Test class for selenium tests."""
 
     layer = JAVASCRIPT_LAYER
     level = 3
@@ -201,5 +200,5 @@ class SeleniumTestCase(unittest.TestCase,
 
     def eval(self, text):
         return self.selenium.getEval(
-            "var window = selenium.browserbot.getCurrentWindow();\n"
-            + text)
+            "var window = selenium.browserbot.getCurrentWindow();\n" +
+            text)
