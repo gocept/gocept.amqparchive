@@ -1,7 +1,7 @@
 import gocept.amqparchive
 import gocept.amqparchive.interfaces
 import gocept.amqprun.testing
-import gocept.selenium.base
+import gocept.selenium.webdriver
 import os
 import plone.testing
 import pyes.exceptions
@@ -154,9 +154,11 @@ class NginxLayer(plone.testing.Layer):
 
     def setUp(self):
         self.nginx()
+        self['http_address'] = self.hostname
 
     def tearDown(self):
         self.nginx('-s', 'quit')
+        del self['http_address']
 
     def nginx(self, *args):
         stdout = sys.stdout if self.debug else open('/dev/null', 'w')
@@ -167,9 +169,19 @@ class NginxLayer(plone.testing.Layer):
 
 NGINX_LAYER = NginxLayer()
 
-JAVASCRIPT_LAYER = gocept.selenium.base.Layer(NGINX_LAYER)
-ENDTOEND_LAYER = gocept.selenium.base.Layer(
-    ELASTIC_LAYER, NGINX_LAYER, ZCML_LAYER)
+
+def WebdriverLayer(bases, name):
+    """Webdriver layer based on other layer(s)."""
+    webdriver = gocept.selenium.webdriver.Layer(
+        bases=bases, name='{}Webdriver'.format(name), module=__name__)
+    return gocept.selenium.webdriver.WebdriverSeleneseLayer(
+        bases=[webdriver], name='{}WebdriverSelenese'.format(name),
+        module=__name__)
+
+
+JAVASCRIPT_LAYER = WebdriverLayer([NGINX_LAYER], 'JavaScript')
+ENDTOEND_LAYER = WebdriverLayer(
+    [ELASTIC_LAYER, NGINX_LAYER, ZCML_LAYER], 'EndToEnd')
 
 
 class ElasticHelper(object):
@@ -188,7 +200,7 @@ class TestCase(unittest.TestCase, ElasticHelper):
 
 
 class SeleniumTestCase(unittest.TestCase,
-                       gocept.selenium.base.TestCase,
+                       gocept.selenium.webdriver.WebdriverSeleneseTestCase,
                        ElasticHelper):
     """Test class for selenium tests."""
 
@@ -199,6 +211,4 @@ class SeleniumTestCase(unittest.TestCase,
         self.selenium.open('http://%s%s' % (NginxLayer.hostname, path))
 
     def eval(self, text):
-        return self.selenium.getEval(
-            "var window = selenium.browserbot.getCurrentWindow();\n" +
-            text)
+        return self.selenium.getEval(text)
