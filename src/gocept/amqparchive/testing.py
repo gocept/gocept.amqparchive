@@ -72,7 +72,7 @@ class ElasticLayer(plone.testing.Layer):
 
                 if time.time() - start > self.START_TIMEOUT:
                     sys.stdout.write(' failed, log output follows:\n')
-                    print contents
+                    print(contents)
                     sys.stdout.flush()
                     raise SystemExit
             time.sleep(1)

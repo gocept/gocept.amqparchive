@@ -59,7 +59,7 @@ def reindex_directory(path, base):
     for f in files:
         try:
             reindex_file(f, base)
-        except:
+        except Exception:
             log.error('Error reindexing %s', f, exc_info=True)
 
 
@@ -104,7 +104,7 @@ def worker_reindex_file(queue, done, base):
 
         try:
             reindex_file(f, base)
-        except:
+        except Exception:
             log.error('Error reindexing %s', f, exc_info=True)
         queue.task_done()
 

@@ -8,6 +8,8 @@ Changelog
 
 - Update to current bootstrap.py.
 
+- Improve forward compatibility with Python 3.
+
 
 1.2.7 (2015-01-28)
 ------------------

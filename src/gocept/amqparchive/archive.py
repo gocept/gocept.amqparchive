@@ -23,5 +23,7 @@ def index_message(event):
         gocept.amqparchive.interfaces.IElasticSearch)
     try:
         elastic.index(data, 'queue', 'message')
-    except:
+    except Exception:
+        # Unfortunately pyes offers no package base exception, so we have to
+        # catch all.
         log.warning('Error connecting to ES', exc_info=True)
