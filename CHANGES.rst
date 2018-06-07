@@ -6,6 +6,8 @@ Changelog
 
 - Adapt the Selenium-1 tests to Webdriver.
 
+- Update to current bootstrap.py.
+
 
 1.2.7 (2015-01-28)
 ------------------
