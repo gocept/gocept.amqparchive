@@ -4,6 +4,7 @@ syntax: glob
 *.pyc
 .cache
 .installed.cfg
+.pytest_cache
 bin
 develop-eggs
 elasticsearch-test.log
