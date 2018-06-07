@@ -94,6 +94,7 @@ class ElasticLayer(plone.testing.Layer):
         except pyes.exceptions.ElasticSearchException:
             pass
 
+
 ELASTIC_LAYER = ElasticLayer()
 
 
@@ -115,6 +116,7 @@ class SettingsLayer(plone.testing.Layer):
     def tearDown(self):
         zope.component.getSiteManager().unregisterUtility(
             self['settings'], provided=gocept.amqprun.interfaces.ISettings)
+
 
 SETTINGS_LAYER = SettingsLayer()
 
@@ -166,6 +168,7 @@ class NginxLayer(plone.testing.Layer):
             ['nginx', '-c', self.nginx_conf] + list(args),
             stdout=stdout, stderr=subprocess.STDOUT,
             cwd=os.path.dirname(self.nginx_conf))
+
 
 NGINX_LAYER = NginxLayer()
 
