@@ -90,7 +90,7 @@ class ElasticLayer(plone.testing.Layer):
         # but the layer structure wreaks havoc on that plan at the moment
         elastic = pyes.ES(os.environ['ELASTIC_HOSTNAME'])
         try:
-            elastic.delete_index('_all')
+            elastic.indices.delete_index('_all')
         except pyes.exceptions.ElasticSearchException:
             pass
 
