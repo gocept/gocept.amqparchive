@@ -10,7 +10,7 @@ Changelog
 
 - Improve forward compatibility with Python 3.
 
-- Force `pyes < 0.20` for now.
+- Force `pyes < 0.17` for now.
 
 
 1.2.7 (2015-01-28)
