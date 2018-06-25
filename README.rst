@@ -2,6 +2,11 @@
 gocept.amqparchive
 ==================
 
+
+**Please note: We do no longer actively support this package. If you still need it, please drop us a note, we can either transfer the repository or support you on a paid basis.**
+
+
+
 This package is an add-on application for gocept.amqprun_ that provides
 three features:
 
