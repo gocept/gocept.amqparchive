@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.3.0 (unreleased)
+1.3.0 (2018-09-19)
 ------------------
 
 - Adapt the Selenium-1 tests to Webdriver.
