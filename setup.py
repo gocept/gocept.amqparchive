@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gocept.amqparchive',
-    version='1.3.1.dev0',
+    version='1.3.0.post1',
     author='Wolfgang Schnerring, Christopher Grebs',
     author_email='mail@gocept.com',
     url='https://bitbucket.org/gocept/gocept.amqparchive',
