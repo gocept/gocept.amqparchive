@@ -8,8 +8,7 @@ setup(
     author_email='mail@gocept.com',
     url='https://bitbucket.org/gocept/gocept.amqparchive',
     description="""\
-Archiving, indexing and search for AMQP messages.
-""",
+Archiving, indexing and search for AMQP messages.""",
     long_description=(
         open('README.rst').read()
         + '\n\n'
